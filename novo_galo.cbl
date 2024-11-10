@@ -1,0 +1,159 @@
+
+
+IDENTIFICATION DIVISION.
+PROGRAM-ID. novo_galo.
+DATA DIVISION.
+WORKING-STORAGE SECTION.
+    01 TABULEIRO.
+        05 ARRAY_PRINCIPAL OCCURS 3 TIMES.
+            10 ESPACO-JOGO OCCURS 3 TIMES PIC X VALUE '-'.
+
+    01 FIM-DO-JOGO PIC 9.
+        88 VERDADEIRO VALUE 1.
+        88 FALSO VALUE 0.
+
+    01 JOGADA-VALIDA PIC 9.
+        88 VERDADEIRO VALUE 1.
+        88 FALSO VALUE 0.
+
+    01 LINHA-COLUNA-VALIDA PIC 9.
+        88 VALIDO VALUE 1.
+        88 INVALIDO VALUE 0.
+
+
+    77 I PIC 9.
+    77 J PIC 9.
+
+    77 CONTADOR PIC 99 VALUE 0.
+    77 JOGADA-LINHA PIC 9.
+    77 JOGADA-COLUNA PIC 9.
+    77 JOGADOR PIC X VALUE 'X'.
+
+PROCEDURE DIVISION.
+
+    PERFORM APRESENTACAO.
+
+    PERFORM UNTIL FIM-DO-JOGO = 1 OR CONTADOR GREATER THAN 9
+
+        PERFORM VER-TABULEIRO
+
+        PERFORM FAZER-JOGADA
+
+        PERFORM VERIFICACAO-VITORIA
+
+        IF FIM-DO-JOGO = 0 THEN
+            PERFORM TROCAR-JOGADOR
+        END-IF
+
+    END-PERFORM
+
+
+STOP RUN.
+
+
+APRESENTACAO.
+    DISPLAY "Bem vindo ao jogo do galo !"
+    DISPLAY " "
+    DISPLAY "Vamos iniciar o jogo do galo"
+    DISPLAY " ".
+
+
+VER-TABULEIRO.
+
+    DISPLAY "  1 2 3"
+    DISPLAY " "
+    PERFORM VARYING I FROM 1 BY 1 UNTIL I > 3
+    DISPLAY I " " NO ADVANCING
+        PERFORM VARYING J FROM 1 BY 1 UNTIL J > 3
+
+            DISPLAY ESPACO-JOGO(I,J) " " NO ADVANCING
+
+
+        END-PERFORM
+        DISPLAY " "
+    END-PERFORM
+    DISPLAY " ".
+
+
+FAZER-JOGADA.
+
+        MOVE 0 TO JOGADA-VALIDA
+        DISPLAY "-------------------------------------------------------------------------------------------------"
+        DISPLAY "Jogador " JOGADOR " Introduza a linha onde pretende jogar (1-3): " NO ADVANCING
+        ACCEPT JOGADA-LINHA
+
+        DISPLAY "Jogador " JOGADOR " Introduza a coluna onde pretende jogar (1-3): " NO ADVANCING
+        ACCEPT JOGADA-COLUNA
+        PERFORM UNTIL JOGADA-VALIDA = 1
+
+
+        PERFORM VALIDACAO-DADOS
+            MOVE JOGADOR TO ESPACO-JOGO(JOGADA-LINHA,JOGADA-COLUNA)
+
+            MOVE 1 TO JOGADA-VALIDA
+            ADD 1 TO CONTADOR
+
+        END-PERFORM
+
+
+        DISPLAY "-------------------------------------------------------------------------------------------------".
+
+TROCAR-JOGADOR.
+    IF JOGADOR = 'X' THEN
+        MOVE 'O' TO JOGADOR
+    ELSE
+        MOVE 'X' TO JOGADOR
+    END-IF.
+
+
+VERIFICACAO-VITORIA.
+
+    IF ((ESPACO-JOGO(1,1) = JOGADOR AND ESPACO-JOGO(1,2) = JOGADOR AND ESPACO-JOGO(1,3) = JOGADOR) OR
+        (ESPACO-JOGO(2,1) = JOGADOR AND ESPACO-JOGO(2,2) = JOGADOR AND ESPACO-JOGO(2,3) = JOGADOR) OR
+        (ESPACO-JOGO(3,1) = JOGADOR AND ESPACO-JOGO(3,2) = JOGADOR AND ESPACO-JOGO(3,3) = JOGADOR) OR
+
+        (ESPACO-JOGO(1,1) = JOGADOR AND ESPACO-JOGO(2,1) = JOGADOR AND ESPACO-JOGO(3,1) = JOGADOR) OR
+        (ESPACO-JOGO(1,2) = JOGADOR AND ESPACO-JOGO(2,2) = JOGADOR AND ESPACO-JOGO(3,2) = JOGADOR) OR
+        (ESPACO-JOGO(1,3) = JOGADOR AND ESPACO-JOGO(2,3) = JOGADOR AND ESPACO-JOGO(3,3) = JOGADOR) OR
+
+        (ESPACO-JOGO(1,1) = JOGADOR AND ESPACO-JOGO(2,2) = JOGADOR AND ESPACO-JOGO(3,3) = JOGADOR) OR
+        (ESPACO-JOGO(1,3) = JOGADOR AND ESPACO-JOGO(2,2) = JOGADOR AND ESPACO-JOGO(3,1) = JOGADOR)) THEN
+
+            DISPLAY JOGADOR " GANHOU !!!!"
+            PERFORM VER-TABULEIRO
+            MOVE 1 TO FIM-DO-JOGO
+      ELSE IF CONTADOR = 9
+        DISPLAY "EMPATE!"
+        MOVE 1 TO FIM-DO-JOGO
+    END-IF
+
+
+    END-IF.
+
+
+VALIDACAO-DADOS.
+    MOVE 0 TO LINHA-COLUNA-VALIDA
+
+    PERFORM UNTIL LINHA-COLUNA-VALIDA = 1
+
+            IF JOGADA-LINHA LESS THAN 1 OR JOGADA-LINHA GREATER THAN 3
+             OR JOGADA-COLUNA LESS THAN 1 OR JOGADA-COLUNA GREATER THAN 3
+
+
+            OR ESPACO-JOGO(JOGADA-LINHA, JOGADA-COLUNA) NOT EQUAL TO "-"
+
+                DISPLAY "Jogada invalida, tente novamente. (validacao) "
+
+                DISPLAY "Jogador " JOGADOR " Introduza a linha onde pretende jogar (1-3) : " NO ADVANCING
+                ACCEPT JOGADA-LINHA
+
+                DISPLAY "Jogador " JOGADOR " Introduza a coluna onde pretende jogar (1-3) : " NO ADVANCING
+                ACCEPT JOGADA-COLUNA
+
+             ELSE
+
+                MOVE JOGADOR TO ESPACO-JOGO(JOGADA-LINHA,JOGADA-COLUNA)
+                MOVE 1 TO LINHA-COLUNA-VALIDA
+            END-IF
+
+    END-PERFORM.
